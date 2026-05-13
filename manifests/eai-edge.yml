@@ -1,0 +1,74 @@
+# EmbeddedOS — eai-edge profile
+#
+# Pulls eNI + eIPC + eAI at version-pinned tags and stitches them into a
+# single CMake superproject. The resulting build exercises the canonical
+# intelligent-edge dataflow: ENI -> EIPC -> eAI.
+#
+# This file is consumed both by `eFab/superproject/eai-edge/CMakeLists.txt`
+# (FetchContent pins are read from EFAB_PIN_* CMake cache variables that
+# default to the values below) and by `ebuild --profile eai-edge`, which
+# treats it as an `ebuild repos` manifest.
+#
+# Format: stable. Bumping any `rev:` is a minor version bump for eFab.
+# Adding a new top-level entry is a major version bump.
+
+apiVersion: efab.embeddedos.org/v1
+kind: Profile
+metadata:
+  name: eai-edge
+  version: 0.1.0
+  license: MIT
+  description: |
+    EmbeddedOS intelligent edge profile. Pulls eAI (on-device inference)
+    + eIPC (secure transport) + eNI (neural-interface input) at known-
+    good versions for an end-to-end ENI -> EIPC -> eAI pipeline. Suitable
+    for BCI prototyping, sensor-driven AI agents on Cortex-A class
+    targets, and host-side simulation of the same.
+  homepage: https://embeddedos-org.github.io/stacks/eai-edge.html
+  maintainers:
+    - name: Srikanth Patchava
+      org: EmbeddedOS Project
+
+# Pipeline declaration — purely informational; the smoke test asserts it.
+dataflow:
+  - source: eNI                      # neural / sensor provider
+  - transport: eIPC                  # secure transport
+  - sink: eAI                        # inference / agent
+
+repos:
+  - name: eNI
+    url: https://github.com/embeddedos-org/eNI.git
+    rev: v0.1.0
+    role: source
+    description: Neural / BCI input provider.
+
+  - name: eIPC
+    url: https://github.com/embeddedos-org/eIPC.git
+    rev: v0.1.0
+    role: transport
+    description: Secure inter-process / inter-device transport (HMAC-SHA256, replay protection).
+
+  - name: eAI
+    url: https://github.com/embeddedos-org/eAI.git
+    rev: v0.1.0
+    role: sink
+    description: On-device LLM / agent inference.
+
+# Integration tests this profile must pass before eFab can publish a release.
+integration_tests:
+  - id: eai-edge.smoke
+    path: tests/eai-edge/smoke_test.py
+    timeout_seconds: 60
+    description: |
+      End-to-end smoke test. Brings up a mock ENI provider, an EIPC
+      loopback transport, and an eAI agent stub; asserts the agent
+      receives at least one ENI-originated event over EIPC and emits a
+      response within `timeout_seconds`.
+
+# Targets this profile is known to build cleanly on. Adding a target
+# requires green CI on that target.
+known_good_targets:
+  - host-x86_64-linux
+  - host-x86_64-darwin
+  - host-aarch64-linux
+  - target-stm32f4    # smoke skipped (host-only loopback); build only

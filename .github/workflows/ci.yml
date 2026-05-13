@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: eai-edge smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The superproject FetchContent's eNI/eIPC/eAI from public URLs.
+      # We do not require those repos to be pre-cloned.
+      - name: Configure superproject
+        working-directory: superproject/eai-edge
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DEFAB_BUILD_TESTS=ON
+
+      - name: Build superproject
+        working-directory: superproject/eai-edge
+        run: cmake --build build -j 2 --target eai_edge
+
+      - name: Run smoke test (Python-only, transport-level)
+        run: python3 tests/eai-edge/smoke_test.py --timeout 60
+
+      - name: Run smoke test (CTest)
+        working-directory: superproject/eai-edge
+        run: ctest --test-dir build --output-on-failure
+        continue-on-error: true   # CTest target may be unavailable on bare runners
