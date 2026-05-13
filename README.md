@@ -13,7 +13,7 @@ and an integration test, nothing more.*
 
 [![License](https://img.shields.io/badge/license-MIT-yellow?style=flat-square)](LICENSE)
 [![Profiles](https://img.shields.io/badge/profiles-1-58a6ff?style=flat-square)](manifests/)
-[![Canon](https://img.shields.io/badge/canon-13_repos_·_14_books-3fb950?style=flat-square)](https://github.com/embeddedos-org/embeddedos-org)
+[![Canon](https://img.shields.io/badge/canon-13_repos_·_14_books-3fb950?style=flat-square)](https://github.com/embeddedos-org)
 
 </div>
 
@@ -36,10 +36,10 @@ eFab is the *fabricator*: it composes; it does not contain.
 ## What eFab is **not**
 
 - **Not** a 14th product. The canonical list is still **13 repos / 14
-  books** (see [`embeddedos-org/README.md`](https://github.com/embeddedos-org/embeddedos-org)).
-  eFab is a meta-repo, in the same category as `embeddedos-org` and
-  `embeddedos-org.github.io`. It is intentionally excluded from the canon
-  count and from the per-product books library.
+  books**. eFab is a meta-repo, in the same category as
+  `embeddedos-org/.github` and `embeddedos-org/embeddedos-org.github.io`.
+  It is intentionally excluded from the canon count and from the per-product
+  books library.
 - **Not** a fork or a copy of any product code. There is zero kernel /
   framework / library source under this repo. A `git grep` for source
   files turns up only manifests, CMake, smoke tests, and docs.
